@@ -31,65 +31,48 @@
 
         <TextView
             android:layout_width="match_parent"
-            android:layout_height="70dp"
-            android:layout_marginTop="50dp"
-            android:text="Choose a drink."
-            android:textColor="#f1f1f1"
-            android:textSize="50dp"
-            android:fontFamily="cursive"/>
-
-
-        <Spinner
-            android:id="@+id/spinner1"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:background="@drawable/frame"
-            >
-
-        </Spinner>
-
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="20dp" />
-
-        <Spinner
-            android:id="@+id/spinner2"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:background="@drawable/frame"
-            >
-
-        </Spinner>
-
-
-        <TextView
-            android:id="@+id/search"
-            android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginTop="30dp"
-            android:text="Search"
+            android:layout_marginTop="50dp"
+            android:layout_marginBottom="100dp"
+            android:text="検索結果"
             android:textColor="#f1f1f1"
-            android:textSize="40dp"
-            android:fontFamily="cursive"/>
-
-
+            android:textSize="30dp" />
 
         <TextView
-            android:id="@+id/errorlog"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_marginTop="20dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:id="@+id/res1"
             android:textColor="#f1f1f1"
-            android:textSize="30dp"
-            android:fontFamily="cursive"/>
+            android:textSize="20dp"
+            android:text=""
+            android:background="@drawable/res_frame"
+            />
 
-
-        <ImageView
-            android:id="@+id/imageView6"
+        <TextView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="fitEnd"
-            app:srcCompat="@drawable/backbottom" />
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:id="@+id/res2"
+            android:textColor="#f1f1f1"
+            android:textSize="20dp"
+            android:text=""
+            android:background="@drawable/res_frame"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:id="@+id/res3"
+            android:textColor="#f1f1f1"
+            android:textSize="20dp"
+            android:text=""
+            android:background="@drawable/res_frame"
+            />
+
+
+
 
     </LinearLayout>
 

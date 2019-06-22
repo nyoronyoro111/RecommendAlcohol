@@ -6,17 +6,18 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
 import java.io.IOException;
 import java.util.Iterator;
 
 public class scrapingpub_gurunabi extends AsyncTask {
     String location=null,kods=null;
+    int budget=-1;
 
 
-    public scrapingpub_gurunabi(String l,String k) {
+    public scrapingpub_gurunabi(String l,String k,int budget) {
         this.location =l;
         this.kods=k;
+        this.budget=budget;
     }
     public String makeURL() {
         String url="https://r.gnavi.co.jp/area/"+location+"/izakaya/"+kods+"/rs/";
@@ -33,7 +34,7 @@ public class scrapingpub_gurunabi extends AsyncTask {
             Elements storeData = new Elements();
             Element el;
             Iterator<Element> ite= elements.iterator();
-            while(ite.hasNext()){
+            while(ite.hasNext()){//ぐるなびの検索結果にPRの店(純粋な検索結果ではない)が入っているのでそれを弾いてstoreDataを作成する。
                 el=ite.next();
                 if(! el.children().first().children().first().hasClass( "label-pr" ))storeData.add( el );
             }
@@ -41,20 +42,22 @@ public class scrapingpub_gurunabi extends AsyncTask {
             String pubName,pubLocation,pubBudget;
             Iterator<Element> ite2 = null;
             int counter=0;
-            for(Element elm:storeData){
-                ite2=elm.select( "li" ).iterator();
+            for(Element elm:storeData){//お店一軒分のデータずつ反復処理
+                ite2=elm.select( "li" ).iterator();//あるお店のデータのうち、liタグの情報のリストのイテレータを得る
+
                 pubName=elm.children().first().text();
                 ite2.next();
                 pubLocation=ite2.next().text();
                 pubBudget=ite2.next().text();
+                if(budget>0  &&  Integer.parseInt(pubBudget.replaceAll( "円","" ).replaceAll( ",","" ))>budget)continue;
                 Log.v("テスト", "これはメッセージです「" + pubName+","+pubLocation+","+pubBudget + "」終わり");
-                recommendPub.publist[counter]=new pub(pubName,pubBudget,pubLocation);
-                Log.v("テスト", "これはメッセージです「publist["+counter+"].name="+recommendPub.publist[counter].getName()+"」終わり");
+                recommendPub.publist.add(new pub(pubName,pubBudget,pubLocation));
+
                 counter++;
                 recommendPub.latch.countDown();
                 if(counter>2)break;
             }
-            Log.v("テスト", "これはメッセージです「" +"for文を抜けました"+ "」終わり");
+
         }catch(IOException e) {
             e.printStackTrace();
         }

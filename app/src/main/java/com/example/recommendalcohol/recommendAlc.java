@@ -3,7 +3,6 @@ package com.example.recommendalcohol;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 public class recommendAlc extends AppCompatActivity{
@@ -17,7 +16,7 @@ public class recommendAlc extends AppCompatActivity{
 
         tree = new recommendAlcTree();
         text = findViewById( R.id.text );
-        text.setText(tree.rNode.getQuestion());
+        text.setText(tree.rNode.getQuestion());//textフィールドに最初の問題文をセットする
         title = findViewById( R.id.title );
 
         findViewById(R.id.yes).setOnClickListener(Onclick_choice);

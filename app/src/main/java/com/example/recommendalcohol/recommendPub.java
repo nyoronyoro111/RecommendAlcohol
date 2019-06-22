@@ -7,16 +7,19 @@ import android.view.View;
 import android.widget.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 public class recommendPub extends AppCompatActivity {
-    public static pub[] publist=new pub[3];
+    public static ArrayList<pub> publist=new ArrayList <>();
     static CountDownLatch latch;
-    Spinner spinner1,spinner2;
+    Spinner spinner1,spinner2,spinner3;
     TextView res1,res2,res3,errorlog;
-    String location="品川・五反田・大崎",kods="日本酒";
+    String location="品川・五反田・大崎",kods="日本酒",buget="制限なし";
     static scrapingpub_gurunabi scraping;
 
     final HashMap<String,String> locationList=new HashMap<String,String>(){
@@ -55,12 +58,27 @@ public class recommendPub extends AppCompatActivity {
             put("リキュール","kods00027");
         }
     };
+    final Map<String,Integer> budgetList= new LinkedHashMap();
+    {
+        budgetList.put("制限なし",-1);
+        budgetList.put("2,000円以下",2000);
+        budgetList.put("3,000円以下",3000);
+        budgetList.put("4,000円以下",4000);
+        budgetList.put("5,000円以下",5000);
+        budgetList.put("6,000円以下",6000);
+        budgetList.put("7,000円以下",7000);
+        budgetList.put("8,000円以下",8000);
+        budgetList.put("9,000円以下",9000);
+        budgetList.put("10,000円以下",10000);
+    }
+
 
 
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
         setContentView( R.layout.recommend_pub );
+
 
 
         //spinner1にプルダウンを設定する＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊
@@ -83,6 +101,7 @@ public class recommendPub extends AppCompatActivity {
             public void onNothingSelected( AdapterView <?> adapterView ) {//何も選択されていないときは何もしない
             }
         } );
+
 
 
 
@@ -111,40 +130,62 @@ public class recommendPub extends AppCompatActivity {
 
 
 
-        //検索ボタンを設定する＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊
+        //spinner3にプルダウンを設定する＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊
+        spinner3 = findViewById( R.id.spinner3 );
+        final ArrayAdapter <String> adapter3 = new ArrayAdapter <>(
+                this,
+                android.R.layout.simple_spinner_item,
+                new ArrayList <String>( budgetList.keySet() )
+        );
+        adapter3.setDropDownViewResource( android.R.layout.simple_spinner_dropdown_item );
+        spinner3.setAdapter( adapter3 );
+        spinner3.setOnItemSelectedListener( new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected( AdapterView <?> adapterView, View view, int i, long l ) {
+                Spinner spinner = (Spinner) adapterView;
+                buget = (String) spinner.getSelectedItem();
+            }
 
+            @Override
+            public void onNothingSelected( AdapterView <?> adapterView ) {//何も選択されていないときは何もしない
+            }
+        } );
+
+
+
+
+        //検索ボタンを設定する＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊
         findViewById( R.id.search ).setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick( View view ) {
                 if (locationList.containsKey( location ) && kodsList.containsKey( kods )) {
-                    scraping = new scrapingpub_gurunabi( locationList.get( location ), kodsList.get( kods ) );
-                    Log.v("テスト", "これはメッセージです「スレッドを開始しました」終わり");
+                    publist=new ArrayList <pub>();
+                    scraping = new scrapingpub_gurunabi( locationList.get( location ), kodsList.get( kods ),budgetList.get( buget ) );
                     latch = new CountDownLatch(3);
                     scraping.execute();
-                        try {
-                            latch.await();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        if (publist.length <= 0) {
-                            Log.v("テスト", "これはメッセージです「publistの長さが0」終わり");
-                            errorlog = findViewById( R.id.errorlog );
-                            errorlog.setText( "検索結果なし" );
-                        } else {
-                            setContentView( R.layout.show_search_result );
-                            res1 = findViewById( R.id.res1 );
-                            res2 = findViewById( R.id.res2 );
-                            res3 = findViewById( R.id.res3 );
-                            Log.v("テスト", "これはメッセージです「publistの長さが1以上」終わり");
-                            if (publist.length > 0) res1.setText( pubinfo( 0 ) );
-                            if (publist.length > 1) res2.setText( pubinfo( 1 ) );
-                            if (publist.length > 2) res3.setText( pubinfo( 2 ) );
-                        }
+                    try {
+                        latch.await(15, TimeUnit.SECONDS);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    if (publist.size() <= 0) {
+                        Log.v("テスト", "これはメッセージです「publistの長さが0」終わり");
+                        errorlog = findViewById( R.id.errorlog );
+                        errorlog.setText( "検索結果なし" );
+                    } else {
+                        setContentView( R.layout.show_search_result );
+                        res1 = findViewById( R.id.res1 );
+                        res2 = findViewById( R.id.res2 );
+                        res3 = findViewById( R.id.res3 );
+                        if (publist.size() > 0) res1.setText( pubinfo( 0 ) );
+                        if (publist.size() > 1) res2.setText( pubinfo( 1 ) );
+                        if (publist.size() > 2) res3.setText( pubinfo( 2 ) );
+                    }
                 }
             }
         } );
     }
     public String pubinfo(int index) {
-        return publist[index].getName()+"\n"+publist[index].getLocaton()+"\n"+publist[index].getBuget();
+        return publist.get( index ).getName()+"\n"+publist.get( index ).getLocaton()+"\n"+publist.get( index ).getBuget();
     }
 }
